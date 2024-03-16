@@ -1,15 +1,13 @@
 'use client'
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-
-
-
-
-
+import { Uploader } from "./component/uploader";
+import { BASE_URL } from "./util/Config";
 
 export default function Home() {
   const [inputValue, setInputValue] = useState('');
   const cache = useRef(false);
+  
 
   useEffect(() => {
     if (!cache.current) {
@@ -20,29 +18,20 @@ export default function Home() {
 
   const handleInputChange = (event) => {
     setInputValue(event.target.value);
-    // console.log('value is:', event.target.value);
   }
 
-  const getFilds = () =>{
-    const filedom = document.getElementById('file');
-
-    filedom.click()
-  }
-  
-  const fileinputChange = (event) =>{
-    const fileData = event.target.files[0];
-    console.log(event.target.files)
-    fetchData(fileData)
-  }
-
-  async function fetchData(file) {
-    const formData = new FormData();
-    formData.append('file', file);
-    const response = await fetch('/api/pdfHandler',{
-        method:"post",
-        body:formData
-    });
-    console.log(response.json())
+  async function handleQuery(query) {
+    await fetch(`${BASE_URL}/chat/`,{
+      method:"post",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body:JSON.stringify({'query':query})
+  }).then((response) => response.json())
+  .then((data) => {
+    console.log('handleQuery:', data)
+  })
+  .catch((error) => console.error('Error deleting object:', error));
   }
 
 
@@ -63,24 +52,18 @@ export default function Home() {
               <input value={inputValue} onChange={handleInputChange} name="input" type="text" className="visible md:hidden h-10 border-gray-400 border-0.5 rounded-full bg-gray-100 dark:bg-gray-500 w-full pl-7 text-york_blue dark:text-gray-200" placeholder="" />
               <input value={inputValue} onChange={handleInputChange} name="input" type="text" className="hidden md:visible md:block h-10 border-gray-400 border-0.5 rounded-full dark:bg-gray-500 bg-gray-100 w-full pl-7 text-york_blue dark:text-gray-200" placeholder="Enter your preferences" />
             </div>
-            <Link href={{ pathname: '/chat', query: { 'question': inputValue } }}>
-              <button className="content-center rounded-md h-10 hidden md:visible md:block w-40 bg-gray-200 dark:bg-slate-600 dark:text-gray-300 ml-3 text-center text-york_blue ">
+            {/* <Link href={{ pathname: '/chat', query: { 'question': inputValue } }}> */}
+              <button onClick={()=>handleQuery(inputValue)} className="content-center rounded-md h-10 hidden md:visible md:block w-40 bg-gray-200 dark:bg-slate-600 dark:text-gray-300 ml-3 text-center text-york_blue ">
                 start chatting
               </button>
               <button className="content-center rounded-md h-10 visible w-16 md:hidden  bg-gray-200 dark:bg-slate-600 dark:text-gray-300 ml-3 text-center text-york_blue ">
                 chat
               </button>
-            </Link>
+            {/* </Link> */}
           </div>
 
         </div>
-        <div>
-        <input id="file" type="file" accept=".pdf"
-         	style={{ display:"none", }}
-         	onChange={fileinputChange}
-        />
-        <button onClick={getFilds}>upload pdf</button>
-      </div>
+        <Uploader></Uploader>
       </div>
 
     </main>

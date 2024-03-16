@@ -11,9 +11,9 @@ export const GET = async () =>{
 
 export const POST = async (req) => {
     console.log(req.body)
-    const blob = await req.blob();
-    console.log(blob);
-    embeddingDataset(blob)
+    // const blob = await req.blob();
+    // console.log(blob);
+    // embeddingDataset(blob)
     // const loader = new PDFLoader(blob, {
     //     splitPages: true,
     //   });
