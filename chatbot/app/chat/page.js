@@ -43,61 +43,24 @@ export default function ChatPage() {
             setInputValue('')
             // setInputValue(()=>'waiting for answer')
             // setInputStatus(()=>false)
+            handleQuery(question)
         }
     }
 
-
-    async function doStreamQuery(question) {
-        if (question != null && question != '') {
-            addChat(ROLE_USER, question)
-            setInputValue('')
-            // setInputValue(()=>'waiting for answer')
-            // setInputStatus(()=>false)
-            addChat(ROLE_BOT, '')
-            streamData.current = 'waiting...'
-            extendChatContent('')
-            await fetchStreamAnswer(question)
-        }
-    }
-
-
-    const fetchStreamAnswer = async (query) => {
-        await fetchEventSource(`${BASE_URL}gptstream`, {
-            method: "POST",
-            headers: {
-                Accept: "text/event-stream",
-                'Content-Type': "text/event-stream",
-                "Cache-Control": 'no-cache',
-                Connection: 'keep-alive',
-            },
-            body: JSON.stringify({ 'question': query }),
-            onopen(res) {
-                if (res.ok && res.status === 200) {
-                    console.log("Connection made ", res.da);
-                } else if (res.status >= 400 && res.status < 500 && res.status !== 429) {
-                    console.log("Client-side error ", res);
-                }
-                streamData.current = ''
-                return new Promise((resolve) => {
-                    // Do some async work here...
-                    resolve(undefined); // Resolve the promise with void value
-                });
-            },
-            onmessage(event) {
-                console.log(event.data);
-                const parsedData = JSON.parse(event.data);
-                console.log(`parsedData:${JSON.stringify(parsedData)}`)
-                extendChatContent(parsedData['content'])
-            },
-            onclose() {
-                console.log("Connection closed by the server");
-            },
-            onerror(err) {
-                console.log("There was an error from server", err);
-            },
-        });
-    };
-
+    async function handleQuery(query) {
+        await fetch(`${BASE_URL}/chat/`,{
+          method:"post",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body:JSON.stringify({'query':query})
+      }).then((response) => response.json())
+      .then((data) => {
+        console.log('handleQuery:', data)
+        addChat(ROLE_BOT, ans['answer'])
+      })
+      .catch((error) => console.error('Error deleting object:', error));
+      }
 
     function clearChat() {
         setChatHistory((ch) => initialHistory)
