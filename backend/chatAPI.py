@@ -4,8 +4,6 @@ from langchain_community.embeddings.sentence_transformer import (
     SentenceTransformerEmbeddings,
 )
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-
-
 from langchain_community.vectorstores import Chroma
 from langchain_text_splitters import CharacterTextSplitter
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -13,8 +11,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
 import dotenv
 from langchain_core.messages import HumanMessage
-
-
+import os
 
 dotenv.load_dotenv()
 
@@ -63,6 +60,7 @@ class Chatbot:
         for d in docs:
             result.append(d.page_content)
         docs = self.retriever.invoke(query)
+        print('docs: ', docs)
         result = self.document_chain.invoke(
         {
             "context": docs,
@@ -73,4 +71,9 @@ class Chatbot:
         )
         print(result)
         return result
+
+    def getFiles(self):
+        folder_path = './files'
+        file_names = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
+        return file_names
     
