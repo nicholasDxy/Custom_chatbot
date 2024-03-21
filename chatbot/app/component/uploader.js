@@ -1,10 +1,11 @@
+'use client'
 import { useEffect, useRef, useState } from "react";
 import { BASE_URL } from "../util/Config";
 
-export const Uploader = () => {
+export const Uploader = ({ updateFileInfo }) => {
     const defaultBtnValue = 'upload file'
     const [btnValue, setBtnValue] = useState(defaultBtnValue);
-    const getFilds = () => {
+    const getFields = () => {
         const filedom = document.getElementById('file');
         filedom.click()
     }
@@ -25,6 +26,7 @@ export const Uploader = () => {
             .then((data) => {
                 setBtnValue(defaultBtnValue)
                 console.log('handleQuery:', data)
+                updateFileInfo(data.name, data.uid)
             })
             .catch((error) => {
                 setBtnValue('Error!')
@@ -39,7 +41,7 @@ export const Uploader = () => {
                 style={{ display: "none", }}
                 onChange={fileinputChange}
             />
-            <button className="w-2/3 h-72 text-gray-800 rounded-md border-gray-200 border-2" onClick={getFilds}>{btnValue}</button>
+            <button className="w-2/3 h-32 my-5 md:h-56 text-gray-600 rounded-xl md:text-3xl text-xl border-gray-300 border-2" onClick={getFields}>{btnValue}</button>
         </div>
     )
 }

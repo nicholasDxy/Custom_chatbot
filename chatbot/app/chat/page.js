@@ -1,23 +1,26 @@
 'use client'
 import Image from "next/image";
 import Link from "next/link";
-import logo from "../../assets/perfume_logo.png"
+import logo from "../../assets/chatbot_logo.png"
 import user from "../../assets/user.png"
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from 'next/navigation'
 import { formateDay, formateTime } from "@/tools/date";
 import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { BASE_URL } from "../util/Config";
 
 export default function ChatPage() {
 
     const ROLE_BOT = 'bot'
     const ROLE_USER = 'user'
     const chatId = useRef(0);
-    const initialHistory = [{ 'id': chatId.current, 'role': 'bot', 'content': 'Welcome to Perfume GPT!', 'time': Date.now() }]
+    const initialHistory = [{ 'id': chatId.current, 'role': 'bot', 'content': 'Welcome to Chat PDF!', 'time': Date.now() }]
 
     const searchParams = useSearchParams()
     const question = searchParams.get('question')
+    const dataUid = searchParams.get('data')
     const [chatHistory, setChatHistory] = useState(initialHistory);
+    const [isLoading, setIsLoading] = useState(false);
     const [inputValue, setInputValue] = useState('');
     const [inputStatus, setInputStatus] = useState(true);
     const streamData = useRef('');
@@ -28,6 +31,10 @@ export default function ChatPage() {
         if (!cache.current) {
             chatId.current++
             console.log(question)
+            if (question != null && question != '') {
+                addChat(ROLE_USER, question)
+                handleQuery(question)
+            }
             cache.current = true
         }
     }, [])
@@ -48,19 +55,24 @@ export default function ChatPage() {
     }
 
     async function handleQuery(query) {
+        console.log('start query'+ dataUid)
+        setIsLoading(true);
         await fetch(`${BASE_URL}/chat/`,{
           method:"post",
           headers: {
             'Content-Type': 'application/json',
           },
-          body:JSON.stringify({'query':query})
+          body:JSON.stringify({'query':query, 'uid': dataUid})
       }).then((response) => response.json())
       .then((data) => {
         console.log('handleQuery:', data)
-        addChat(ROLE_BOT, ans['answer'])
+        addChat(ROLE_BOT, data['answer'])
       })
-      .catch((error) => console.error('Error deleting object:', error));
-      }
+      .catch((error) => console.error('Error deleting object:', error))
+      .finally(() => {
+        setIsLoading(false);
+      })
+    }
 
     function clearChat() {
         setChatHistory((ch) => initialHistory)
@@ -129,17 +141,19 @@ export default function ChatPage() {
             </div>
 
 
-            <div className="fixed bottom-0 w-full py-10 border-t-2 border-gray-100 dark:border-black px-3 lg:px-56 bg-white dark:bg-slate-800">
+            <div className="fixed bottom-0 w-full py-10 bg-transparent border-t-2 border-gray-300 dark:border-black px-3 lg:px-56  dark:bg-slate-800">
                 <div className="flex flex-row my-3">
                     <div className="flex-1 ">
-                        <input value={inputValue} onChange={handleInputChange} name="input" type="text" className="visible md:hidden h-10 border-gray-400 border-0.5 rounded-full dark:text-gray-200 dark:bg-gray-500 bg-gray-50 w-full pl-7 text-york_blue" placeholder="" />
+                        <input value={inputValue} onChange={handleInputChange} name="input" type="text" className="visible md:hidden h-10 border-gray-400 border-0.5 rounded-full dark:text-gray-200 dark:bg-gray-500 bg-gray-100 w-full pl-7 text-york_blue" disabled={isLoading} 
+                placeholder={isLoading ? 'Waiting for the answer...' : 'Enter your query here'} />
 
-                        <input value={inputValue} onChange={handleInputChange} name="input" type="text" className="md:visible md:block hidden h-10 border-gray-400 border-0.5 dark:text-gray-200 rounded-full dark:bg-gray-500 bg-gray-50 w-full pl-7 text-york_blue" placeholder="Enter your preferences" />
+                        <input value={inputValue} onChange={handleInputChange} name="input" type="text" className="md:visible md:block hidden h-10 border-gray-400 border-0.5 dark:text-gray-200 rounded-full dark:bg-gray-500 bg-gray-100 w-full pl-7 text-york_blue" disabled={isLoading} 
+                placeholder={isLoading ? 'Waiting for the answer...' : 'Enter your query here'} />
                     </div>
-                    <button className="hidden md:block  content-center rounded-md h-10 w-32  ml-3 dark:bg-gray-500 dark:text-gray-300 border-gray-300 border-1 text-gray-600 font-bold" onClick={() => { handleQuery(inputValue) }}>
+                    <button disabled={isLoading}  className="hidden md:block  border-gray-500 border-2 content-center rounded-md h-10 w-32  ml-3 dark:bg-gray-500 dark:text-gray-300 border-1 text-gray-600 font-bold" onClick={() => { doQuery(inputValue) }}>
                         send chat
                     </button>
-                    <button className="visited: md:hidden ml-2 content-center rounded-md dark:bg-gray-500 dark:text-gray-300 border-gray-300 border-1 text-gray-600 h-10 w-16 text-center font-bold" onClick={() => { handleQuery(inputValue) }}>
+                    <button disabled={isLoading}  className="visited: md:hidden border-gray-500 border-2 ml-2 content-center rounded-md dark:bg-gray-500 dark:text-gray-300  border-1 text-gray-600 h-10 w-16 text-center font-bold" onClick={() => { doQuery(inputValue) }}>
                         chat
                     </button>
                     <button onClick={clearChat} className="hidden md:block content-center bg-gray-100 rounded-md h-10 w-32 dark:bg-gray-500 border-1 dark:text-gray-300 text-york_blue ml-3 text-center font-bold">

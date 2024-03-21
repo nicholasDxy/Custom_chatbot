@@ -1,10 +1,11 @@
 'use client'
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import logo from "../assets/chatbot_logo.png"
 import Link from "next/link";
 import { Uploader } from "./component/uploader";
 import Select from 'react-select';
 import { BASE_URL } from "./util/Config";
-import { MultiSelect } from "react-multi-select-component";
 
 
 export default function Home() {
@@ -12,6 +13,7 @@ export default function Home() {
   const [selectedOption, setSelectedOption] = useState(null);
   const [options, setOptions] = useState([]);
   const cache = useRef(false);
+  const uid = useRef("");
   
 
   useEffect(() => {
@@ -24,6 +26,12 @@ export default function Home() {
   const handleInputChange = (event) => {
     setInputValue(event.target.value);
   }
+  function updateFileInfo(fileName, fileUid) {
+    console.log('updateFileInfo:', fileName, fileUid)
+    setOptions((options)=>[...options, { 'value': fileUid, 'label': fileName }])
+    setSelectedOption({'value': fileUid, 'label': fileName })
+    console.log(selectedOption)
+  }
 
   async function getFileList() {
     await fetch(`${BASE_URL}/files/`,{
@@ -33,45 +41,47 @@ export default function Home() {
     console.log('getFileList:', data)
     let fileOption = []
     data.forEach(element => {
-      fileOption.push({ value: element, label: element })
+      fileOption.push({ value: element.uid, label: element.file_name })
     });
     console.log(fileOption)
-    setOptions(fileOption)
+    setOptions((op)=>[...op, ...fileOption])
   })
   .catch((error) => console.error('Error deleting object:', error));
   }
 
-  return (
-    <main className="items-center font-LexendRegular dark:bg-slate-800">
-      <div className="flex flex-col items-center justify-center">
-        {/* <Image src={logo} alt="logo" width={220} height={220} className="mt-20 rounded-full" /> */}
+function handleClick() {
+  console.log('selectedOption:', selectedOption)
+}
 
-        <div className="mt-10 font-LexendBold font-black text-2xl lg:text-4xl text-center my-3 text-york_blue dark:text-white">
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 h-full items-center font-LexendRegular dark:bg-slate-800">
+      <div className="LexendRegular flex flex-col items-center justify-center">
+        <div className="mt-10 font-LexendBold font-black text-4xl lg:text-4xl text-center my-3 text-york_blue dark:text-white">
            CHAT PDF
         </div>
+        <Image src={logo} alt="logo" width={200} height={200} className="mt-5 object-contain rounded-full" />
         <div className="w-full lg:px-40 px-5 py-5">
           <div className="flex flex-row my-3">
             <div className="flex-1 ">
-              <input value={inputValue} onChange={handleInputChange} name="input" type="text" className="visible md:hidden h-10 border-gray-400 border-0.5 rounded-full bg-gray-100 dark:bg-gray-500 w-full pl-7 text-york_blue dark:text-gray-200" placeholder="" />
-              <input value={inputValue} onChange={handleInputChange} name="input" type="text" className="hidden md:visible md:block h-10 border-gray-400 border-0.5 rounded-full dark:bg-gray-500 bg-gray-100 w-full pl-7 text-york_blue dark:text-gray-200" placeholder="Input your question" />
+              <input value={inputValue} onChange={handleInputChange} name="input" type="text" className="visible md:hidden h-10 border-gray-400 border-1 rounded-full bg-white dark:bg-gray-500 w-full pl-7 text-york_blue dark:text-gray-200" placeholder="" />
+              <input value={inputValue} onChange={handleInputChange} name="input" type="text" className="hidden md:visible md:block h-10 border-gray-400 border-1 rounded-full dark:bg-gray-500 bg-white w-full pl-7 text-york_blue dark:text-gray-200" placeholder="Input your question" />
             </div>
-            <Link href={{ pathname: '/chat', query: { 'question': inputValue } }}>
-              <button className="content-center rounded-md h-10 hidden md:visible md:block w-40 bg-gray-200 dark:bg-slate-600 dark:text-gray-300 ml-3 text-center text-york_blue ">
+            <Link onClick={handleClick} href={{ pathname: '/chat', query: { 'question': inputValue , 'data': selectedOption!=null?selectedOption.value:''} }}>
+              <button className="content-center rounded-md h-10 hidden md:visible md:block w-40 border-gray-500 border-2 dark:bg-slate-600 dark:text-gray-300 ml-3 text-center text-gray-600 ">
                 start chatting
               </button>
-              <button className="content-center rounded-md h-10 visible w-16 md:hidden  bg-gray-200 dark:bg-slate-600 dark:text-gray-300 ml-3 text-center text-york_blue ">
+              <button className="content-center rounded-md h-10 visible w-16 md:hidden  border-gray-500 border-2 dark:bg-slate-600 dark:text-gray-300 ml-3 text-center text-gray-600 ">
                 chat
               </button>
             </Link>
           </div>
 
         </div>
-        <Uploader/>
-        <MultiSelect className="mt-5 w-2/3"
-        defaultValue={selectedOption}
+        <Uploader updateFileInfo={updateFileInfo}/>
+        <Select className="mt-5 w-2/3"
+        value={selectedOption}
         onChange={setSelectedOption}
-        options={options}
-      />
+        options={options}     />
       </div>
 
     </main>
