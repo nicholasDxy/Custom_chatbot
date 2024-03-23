@@ -5,8 +5,8 @@ import { Suspense } from 'react'
 
 
 export const metadata = {
-  title: "Perfume GPT",
-  description: "perfume recommendation GPT",
+  title: "PDF GPT",
+  description: "Chat with PDF",
 };
 
 export default function RootLayout({
@@ -14,7 +14,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen  w-full h-full">
+      <body className="bg-gradient-to-b from-white to-pink-50 min-h-screen  w-full h-full">
         <Suspense>
           {children}
         </Suspense>

@@ -2,18 +2,17 @@
 FROM node:21-alpine3.18 as build
 
 WORKDIR /app
-
-COPY package.json ./
-RUN npm install
+COPY package.json yarn.lock./
+RUN yarn
 
 COPY . .
-RUN npm run build
+RUN yarn build
 
 FROM node:21-alpine3.18
 
 WORKDIR /app
 
 COPY --from=build /app ./
-RUN npm install -g serve
+EXPOSE 3000
 
-CMD ["serve", "-p", "3000", "-s", "build"]
+CMD ["yarn", "start"]

@@ -55,23 +55,23 @@ export default function ChatPage() {
     }
 
     async function handleQuery(query) {
-        console.log('start query'+ dataUid)
+        console.log('start query' + dataUid)
         setIsLoading(true);
-        await fetch(`${BASE_URL}/chat/`,{
-          method:"post",
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body:JSON.stringify({'query':query, 'uid': dataUid})
-      }).then((response) => response.json())
-      .then((data) => {
-        console.log('handleQuery:', data)
-        addChat(ROLE_BOT, data['answer'])
-      })
-      .catch((error) => console.error('Error deleting object:', error))
-      .finally(() => {
-        setIsLoading(false);
-      })
+        await fetch(`${BASE_URL}/chat/`, {
+            method: "post",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 'query': query, 'uid': dataUid })
+        }).then((response) => response.json())
+            .then((data) => {
+                console.log('handleQuery:', data)
+                addChat(ROLE_BOT, data['answer'])
+            })
+            .catch((error) => console.error('Error deleting object:', error))
+            .finally(() => {
+                setIsLoading(false);
+            })
     }
 
     function clearChat() {
@@ -87,13 +87,13 @@ export default function ChatPage() {
     }
 
     function extendChatContent(content) {
-        streamData.current+=content
+        streamData.current += content
         console.log(`streamData = ${streamData.current}`)
         setChatHistory((data) => {
             data[data.length - 1]['content'] = streamData.current
             return data
         })
-        setChatHistory((data)=>[...data]) //avoid no rerendering after receiving data
+        setChatHistory((data) => [...data]) //avoid no rerendering after receiving data
     }
 
 
@@ -107,7 +107,7 @@ export default function ChatPage() {
                     chatHistory.map((chatItem) => {
                         if (chatItem['role'] == ROLE_BOT) {
                             return (
-                                <div key={chatItem['id']} className="px-6 lg:px-56 py-2 bg-slate-50 dark:bg-slate-700">
+                                <div key={chatItem['id']} className="px-6 lg:px-56 py-2 bg-white dark:bg-slate-700">
                                     <Image className="float-left rounded-full" src={logo} alt="logo" width={50} height={50} />
 
                                     <div className="flex flex-col px-5 py-3 ml-3">
@@ -144,19 +144,19 @@ export default function ChatPage() {
             <div className="fixed bottom-0 w-full py-10 bg-transparent border-t-2 border-gray-300 dark:border-black px-3 lg:px-56  dark:bg-slate-800">
                 <div className="flex flex-row my-3">
                     <div className="flex-1 ">
-                        <input value={inputValue} onChange={handleInputChange} name="input" type="text" className="visible md:hidden h-10 border-gray-400 border-0.5 rounded-full dark:text-gray-200 dark:bg-gray-500 bg-gray-100 w-full pl-7 text-york_blue" disabled={isLoading} 
-                placeholder={isLoading ? 'Waiting for the answer...' : 'Enter your query here'} />
+                        <input value={inputValue} onChange={handleInputChange} name="input" type="text" className="visible md:hidden h-10 border-gray-400 border-0.5 rounded-full dark:text-gray-200 dark:bg-gray-500 bg-white w-full pl-7 text-york_blue" disabled={isLoading}
+                            placeholder={isLoading ? 'Waiting for the answer...' : 'Enter your query here'} />
 
-                        <input value={inputValue} onChange={handleInputChange} name="input" type="text" className="md:visible md:block hidden h-10 border-gray-400 border-0.5 dark:text-gray-200 rounded-full dark:bg-gray-500 bg-gray-100 w-full pl-7 text-york_blue" disabled={isLoading} 
-                placeholder={isLoading ? 'Waiting for the answer...' : 'Enter your query here'} />
+                        <input value={inputValue} onChange={handleInputChange} name="input" type="text" className="md:visible md:block hidden h-10 border-gray-400 border-0.5 dark:text-gray-200 rounded-full dark:bg-gray-500 bg-white w-full pl-7 text-york_blue" disabled={isLoading}
+                            placeholder={isLoading ? 'Waiting for the answer...' : 'Enter your query here'} />
                     </div>
-                    <button disabled={isLoading}  className="hidden md:block  border-gray-500 border-2 content-center rounded-md h-10 w-32  ml-3 dark:bg-gray-500 dark:text-gray-300 border-1 text-gray-600 font-bold" onClick={() => { doQuery(inputValue) }}>
+                    <button disabled={isLoading} className="hidden md:block  border-gray-500 border-2 content-center rounded-md h-10 w-32  ml-3 dark:bg-gray-500 dark:text-gray-300 border-1 text-gray-600 font-bold" onClick={() => { doQuery(inputValue) }}>
                         send chat
                     </button>
-                    <button disabled={isLoading}  className="visited: md:hidden border-gray-500 border-2 ml-2 content-center rounded-md dark:bg-gray-500 dark:text-gray-300  border-1 text-gray-600 h-10 w-16 text-center font-bold" onClick={() => { doQuery(inputValue) }}>
+                    <button disabled={isLoading} className="visited: md:hidden border-gray-500 border-2 ml-2 content-center rounded-md dark:bg-gray-500 dark:text-gray-300  border-1 text-gray-600 h-10 w-16 text-center font-bold" onClick={() => { doQuery(inputValue) }}>
                         chat
                     </button>
-                    <button onClick={clearChat} className="hidden md:block content-center bg-gray-100 rounded-md h-10 w-32 dark:bg-gray-500 border-1 dark:text-gray-300 text-york_blue ml-3 text-center font-bold">
+                    <button onClick={clearChat} className="hidden md:block content-center bg-white rounded-md h-10 w-32 dark:bg-gray-500 border-1 dark:text-gray-300 text-york_blue ml-3 text-center font-bold">
                         clear chat
                     </button>
                 </div>
