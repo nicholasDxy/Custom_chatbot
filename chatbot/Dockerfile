@@ -6,6 +6,7 @@ COPY package.json yarn.lock./
 RUN yarn
 
 COPY . .
+RUN yarn install
 RUN yarn build
 
 FROM node:21-alpine3.18
